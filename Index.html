@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Refrigeración Marval | Facturación</title>
+    <style>
+        :root { 
+            --azul-premium: #0077b6; 
+            --azul-oscuro: #03045e; 
+            --blanco: #ffffff; 
+            --texto: #1d3557; 
+            --sombra: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        * { box-sizing: border-box; transition: all 0.2s ease; margin: 0; padding: 0; }
+        
+        body { 
+            background: #f8f9fa;
+            color: var(--texto); 
+            padding-bottom: 80px; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            width: 100vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        header { 
+            background: var(--azul-oscuro); 
+            color: var(--blanco); 
+            width: 100%;
+            height: 80px; /* Aumentado la altura para acomodar logo y texto */
+            border-bottom: 4px solid var(--azul-premium);
+            box-shadow: var(--sombra);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 1001;
+        }
+
+        .container { 
+            padding: 15px; 
+            width: 100%;
+            max-width: 500px; 
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .card { 
+            background: #ffffff; 
+            border-radius: 12px; 
+            padding: 20px; 
+            box-shadow: var(--sombra); 
+            margin-bottom: 15px;
+            width: 100%; 
+        }
+        
+        h2 { 
+            font-size: 1rem; 
+            color: var(--azul-oscuro); 
+            border-left: 5px solid var(--azul-premium); 
+            padding-left: 10px; 
+            text-transform: uppercase; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+        
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin-bottom: 12px; 
+            border: 2px solid #ddd; 
+            border-radius: 8px; 
+            font-size: 1rem; 
+            outline: none; 
+            display: block;
+        }
+        
+        label { display: block; font-size: 0.75rem; font-weight: bold; color: var(--azul-premium); margin-bottom: 4px; text-transform: uppercase; }
+
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 0.8rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-azul { background: var(--azul-premium); color: white; }
+        .btn-negro { background: var(--azul-oscuro); color: white; margin-top: 10px; }
+        .btn-rojo { background: #e63946; color: white; margin-top: 10px; }
+        .btn-gris { background: #f1f3f5; color: #495057; border: 1px solid #dee2e6; flex: 1; }
+
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; width: 100%; }
+
+        .sugerencias { position: relative; width: 100%; }
+        #res-sug { position: absolute; top: 48px; left: 0; right: 0; background: white; border-radius: 8px; z-index: 100; box-shadow: var(--sombra); max-height: 150px; overflow-y: auto; border: 1px solid #ddd; }
+        .sug-item { padding: 12px; border-bottom: 1px solid #f1f1f1; cursor: pointer; font-size: 0.9rem; }
+        
+        .ticket-wrap { 
+            background: #fff; padding: 12px; border: 1px solid #000;
+            font-family: 'Times New Roman', Times, serif; color: #000;
+            font-size: 0.85rem; line-height: 1.2;
+        }
+
+        .anulada { text-decoration: line-through; color: #888 !important; }
+        
+        nav { 
+            position: fixed; 
+            bottom: 0; 
+            width: 100%; 
+            max-width: 500px; 
+            background: #fff; 
+            display: flex; 
+            border-top: 1px solid #ddd; 
+            height: 70px; 
+            z-index: 1000; 
+            padding-bottom: env(safe-area-inset-bottom); 
+        }
+        
+        .nav-item { flex: 1; border: none; background: none; font-size: 0.75rem; cursor: pointer; color: #888; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+        .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
+        .nav-item.active { color: var(--azul-premium); font-weight: bold; border-top: 3px solid var(--azul-premium); }
+
+        #login-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--azul-oscuro); z-index: 9999; display: flex; align-items: center; justify-content: center; }
+
+        @media print {
+            nav, .btn, header, .no-print { display: none !important; }
+            .card { border: none; box-shadow: none; padding: 0; }
+            .ticket-wrap { border: none; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="card" style="width: 90%; max-width: 350px; text-align: center;">
+        <img src="https://i.postimg.cc/YCDQdPbJ/In-Shot-20260302-163035342.jpg" style="width: 250px; height: auto; margin-bottom: 25px;">
+        <h2 style="border:none; padding:0; color:var(--azul-premium); margin-bottom: 15px; justify-content: center; text-align: center;">SISTEMA DE FACTURACIÓN</h2>
+        <input type="password" id="pass-input" placeholder="Contraseña de Sistema" style="text-align: center;">
+        <button class="btn btn-azul" onclick="checkPass()">ENTRAR</button>
+    </div>
+</div>
+
+<header id="main-header" style="display:none;">
+    <div style="font-weight:bold; letter-spacing:1px; font-size: 0.9rem; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+        <img src="https://i.postimg.cc/YCDQdPbJ/In-Shot-20260302-163035342.jpg" style="height: 60px; width: auto; border-radius: 5px;">
+        REFRIGERACIÓN MARVAL C.A
+    </div>
+</header>
+
+<div id="app" class="container" style="display:none;"></div>
+
+<nav id="main-nav" style="display:none;">
+    <button class="nav-item active" onclick="ver('inv', this)">
+        <svg viewBox="0 0 24 24"><path d="M22 13h-8v-2h8v2zm0-6h-8v2h8V7zm-8 10h8v-2h-8v2zm-2-8v6c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V9c0-1.1.9-2 2-2h6c1.1 0 2 .9 2 2zm-1.5 6l-2.25-3-1.75 2.26-1.25-1.51L3.5 15h7z"/></svg>
+        Servicios
+    </button>
+    <button class="nav-item" onclick="ver('ven', this)">
+        <svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79 2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+        Venta
+    </button>
+    <button class="nav-item" onclick="ver('his', this)">
+        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+        Historial
+    </button>
+</nav>
+
+<script>
+    const PASS_CORRECTA = "2303";
+    let db_p = JSON.parse(localStorage.getItem('rv_productos')) || [];
+    let db_v = JSON.parse(localStorage.getItem('rv_ventas')) || [];
+    let carrito = [];
+    let p_sel = null;
+
+    function checkPass() {
+        const input = document.getElementById('pass-input').value;
+        if(input === PASS_CORRECTA || input === "0") {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('main-header').style.display = 'flex';
+            document.getElementById('app').style.display = 'flex';
+            document.getElementById('main-nav').style.display = 'flex';
+            ver('inv');
+        } else { 
+            alert("Acceso Denegado"); 
+            document.getElementById('pass-input').value = "";
+        }
+    }
+
+    function formateaNum(num) { return num.toString().padStart(5, '0'); }
+
+    function ver(vista, el) {
+        if(el) {
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+        }
+        const cont = document.getElementById('app');
+        
+        if(vista === 'inv') {
+            cont.innerHTML = `<div class="card"><h2>SERVICIOS / REPUESTOS</h2>
+                <button class="btn btn-azul" onclick="formP()">+ REGISTRAR ITEM</button>
+                <div style="display:flex; gap:8px; margin-top:15px;">
+                    <button class="btn btn-azul" style="font-size:0.7rem; padding: 10px 5px;" onclick="exportarDB()">EXPORTAR COPIA</button>
+                    <button class="btn btn-azul" style="font-size:0.7rem; padding: 10px 5px;" onclick="document.getElementById('fileInput').click()">IMPORTAR COPIA</button>
+                </div>
+                <input type="file" id="fileInput" style="display:none" onchange="importarDB(event)">
+                <div id="lista-inv" style="margin-top:20px">${db_p.map((p, i) => `<div class="item-row">
+                    <span><b>${p.n}</b><br><small>$${p.p.toFixed(2)} | Stock: ${p.s || 0}</small></span>
+                    <button class="btn btn-azul" style="width:auto; padding:8px 15px; font-size:0.75rem;" onclick="formP(${i})">EDITAR</button>
+                </div>`).join('')}</div></div>`;
+        }
+
+        if(vista === 'ven') {
+            let nFac = formateaNum(db_v.length + 1);
+            cont.innerHTML = `<div class="card"><h2>FACTURA #${nFac}</h2>
+                <label>Nombre del Cliente:</label>
+                <input id="v-cli" placeholder="CLIENTE GENERAL">
+                <label>Tasa del Día (BS):</label>
+                <input id="v-tasa" type="number" step="0.01" value="">
+                <label>Buscar servicio o repuesto:</label>
+                <div class="sugerencias"><input id="v-bus" placeholder="Escriba descripción..." onkeyup="sugerir(this.value)" autocomplete="off"><div id="res-sug"></div></div>
+                <div style="display:flex; gap:10px">
+                    <div style="flex:1"><label>Cant:</label><input id="v-can" type="number" value="1" min="1"></div>
+                    <div style="flex:2; align-self:flex-end;"><button class="btn btn-azul" onclick="agregar()">AÑADIR</button></div>
+                </div>
+                <div id="v-car" style="margin-top:10px; font-size:0.9rem;"></div>
+                <button id="btn-cobrar" class="btn btn-negro" style="display:none;" onclick="finalizar('${nFac}')">GENERAR FACTURA</button></div>`;
+            renderCar();
+        }
+
+        if(vista === 'his') {
+            cont.innerHTML = `<div class="card"><h2>REGISTRO DE VENTAS</h2>
+                <div id="lista-his">${db_v.slice().reverse().map(v => `<div class="item-row" onclick="imprimir(${v.id})" style="cursor:pointer">
+                    <span><b>#${v.num}</b> - ${v.cli}</span>
+                    <b>$${v.total.toFixed(2)}</b>
+                </div>`).join('') || '<p style="text-align:center; padding:20px; color:#888;">Sin ventas registradas.</p>'}</div></div>`;
+        }
+    }
+
+    function formP(idx = null) {
+        const p = idx !== null ? db_p[idx] : {c: Date.now(), n:'', p:'', s: 0};
+        document.getElementById('app').innerHTML = `<div class="card"><h2>DETALLES DEL ITEM</h2>
+            <label>Descripción:</label><input id="p-n" value="${p.n}">
+            <label>Precio USD:</label><input id="p-p" type="number" step="0.01" value="${p.p}">
+            <label>Stock Actual:</label><input id="p-s" type="number" value="${p.s || 0}">
+            <button class="btn btn-azul" onclick="saveP(${idx}, ${p.c})">GUARDAR</button>
+            <button class="btn btn-gris" style="margin-top:10px" onclick="ver('inv')">CANCELAR</button></div>`;
+    }
+
+    function saveP(idx, code) {
+        let p = { 
+            c: code, 
+            n: document.getElementById('p-n').value, 
+            p: parseFloat(document.getElementById('p-p').value) || 0,
+            s: parseInt(document.getElementById('p-s').value) || 0
+        };
+        if(idx !== null) db_p[idx] = p; else db_p.push(p);
+        localStorage.setItem('rv_productos', JSON.stringify(db_p));
+        ver('inv');
+    }
+
+    function sugerir(v) {
+        const res = document.getElementById('res-sug');
+        if(!v) { res.innerHTML = ""; return; }
+        let f = db_p.filter(p => p.n.toLowerCase().includes(v.toLowerCase()));
+        res.innerHTML = f.map(p => `<div class="sug-item" onclick="selP('${p.c}','${p.n}')">${p.n} (Stock: ${p.s})</div>`).join('');
+    }
+
+    function selP(c, n) { document.getElementById('v-bus').value = n; document.getElementById('res-sug').innerHTML = ""; p_sel = c; }
+
+    function agregar() {
+        let cant = parseFloat(document.getElementById('v-can').value);
+        let p = db_p.find(x => x.c == p_sel);
+        if(p) {
+            if(p.s < cant) { alert("Stock insuficiente. Disponible: " + p.s); return; }
+            carrito.push({ c: p.c, n: p.n, q: cant, p: p.p, st: cant * p.p });
+            document.getElementById('v-bus').value = ""; p_sel = null; renderCar();
+        } else { alert("Seleccione un item."); }
+    }
+
+    function renderCar() {
+        const d = document.getElementById('v-car'); if(!d) return;
+        d.innerHTML = carrito.map((i, idx) => `<div class="item-row"><span>${i.q}x ${i.n}</span><span>$${i.st.toFixed(2)} <span onclick="carrito.splice(${idx},1); renderCar()" style="color:red; margin-left:12px; font-weight:bold; cursor:pointer;">✕</span></span></div>`).join('');
+        document.getElementById('btn-cobrar').style.display = carrito.length > 0 ? 'block' : 'none';
+    }
+
+    function finalizar(nStr) {
+        let totalFactura = carrito.reduce((a,b)=>a+b.st, 0);
+        let v = { 
+            id: Date.now(), num: nStr, cli: document.getElementById('v-cli').value || "CLIENTE GENERAL", 
+            items: [...carrito], total: totalFactura, 
+            tasa: parseFloat(document.getElementById('v-tasa').value) || 1, 
+            fecha: new Date().toLocaleDateString(),
+            estado: 'ACTIVA'
+        };
+
+        carrito.forEach(item => {
+            let prod = db_p.find(p => p.c == item.c);
+            if(prod) prod.s -= item.q;
+        });
+
+        db_v.push(v); carrito = []; 
+        localStorage.setItem('rv_productos', JSON.stringify(db_p));
+        localStorage.setItem('rv_ventas', JSON.stringify(db_v));
+        imprimir(v.id);
+    }
+
+    function anularFactura(id) {
+        if(!confirm("¿Desea ELIMINAR esta factura? El stock de los productos será devuelto y la factura desaparecerá del registro.")) return;
+        
+        let idx = db_v.findIndex(x => x.id == id);
+        if(idx !== -1) {
+            let v = db_v[idx];
+            // 1. Devolver the stock de cada item
+            v.items.forEach(item => {
+                let prod = db_p.find(p => p.c == item.c);
+                if(prod) prod.s += item.q;
+            });
+            
+            // 2. Eliminar la factura definitivamente del array
+            db_v.splice(idx, 1);
+            
+            // 3. Guardar cambios en LocalStorage
+            localStorage.setItem('rv_productos', JSON.stringify(db_p));
+            localStorage.setItem('rv_ventas', JSON.stringify(db_v));
+            
+            alert("Factura Eliminada. Stock devuelto a inventario.");
+            ver('his');
+        }
+    }
+
+    function imprimir(id) {
+        let v = db_v.find(x => x.id == id);
+        if(!v) return;
+        document.getElementById('app').innerHTML = `<div class="card"><div class="ticket-wrap">
+            <div class="ticket-header" style="text-align:center; margin-bottom:10px;">
+                <b style="font-size: 1.1rem;">REFRIGERACIÓN MARVAL</b><br>
+                <b>FACTURA: #${v.num}</b>
+            </div>
+            <div style="margin-bottom: 8px;">
+                <b>CLIENTE:</b> ${v.cli.toUpperCase()}<br>
+                <b>FECHA:</b> ${v.fecha}
+            </div>
+            <table style="width:100%; border-collapse: collapse; font-size: 0.75rem;">
+                <tr style="border-bottom: 1px solid #000; text-align: left;">
+                    <th>Cant</th><th>Descripción</th><th>P.Unit</th><th align="right">Total</th>
+                </tr>
+                ${v.items.map(i => `<tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding:4px 0;">${i.q}</td><td>${i.n}</td><td>$${i.p.toFixed(2)}</td><td align="right">$${i.st.toFixed(2)}</td>
+                </tr>`).join('')}
+            </table>
+            <div style="margin-top: 10px; border-top: 1px solid #000; padding-top: 5px; text-align: right;">
+                <b>TOTAL USD: $${v.total.toFixed(2)}</b><br>
+                <b>TOTAL BS: Bs ${(v.total * v.tasa).toFixed(2)}</b><br>
+                <small>Tasa: ${v.tasa} Bs/USD</small>
+            </div>
+            <div style="margin-top: 15px; text-align: center; font-size: 0.7rem; border-top: 1px dashed #ccc; padding-top: 5px;">
+                ¡GRACIAS POR SU PREFERENCIA!<br>SERVICIO GARANTIZADO.
+            </div>
+        </div>
+        <div class="no-print">
+            <button class="btn btn-rojo" onclick="anularFactura(${v.id})">ANULAR Y ELIMINAR</button>
+            <button class="btn btn-azul" style="margin-top:15px" onclick="window.print()">IMPRIMIR</button>
+            <button class="btn btn-gris" style="margin-top:10px" onclick="ver('his')">VOLVER</button>
+        </div></div>`;
+    }
+
+    function exportarDB() {
+        const data = { productos: db_p, ventas: db_v };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_marval_${new Date().getTime()}.json`;
+        a.click();
+    }
+
+    function importarDB(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                if(data.productos && data.ventas) {
+                    if(confirm("¿Restaurar copia? Se borrarán los datos actuales.")) {
+                        db_p = data.productos; db_v = data.ventas;
+                        localStorage.setItem('rv_productos', JSON.stringify(db_p));
+                        localStorage.setItem('rv_ventas', JSON.stringify(db_v));
+                        ver('inv'); alert("Copia restaurada.");
+                    }
+                }
+            } catch(err) { alert("Error de archivo."); }
+        };
+        reader.readAsText(file);
+    }
+
+    document.addEventListener('keydown', (e) => {
+        const login = document.getElementById('login-screen');
+        if(login.style.display !== 'none') {
+            if(e.key === "0") {
+                document.getElementById('pass-input').value = "0";
+                checkPass();
+            } else if(e.key === "Enter") {
+                checkPass();
+            }
+        }
+    });
+</script>
+</body>
+</html>
